@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CE+T Power Cusromer Support — Assistance</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1a;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --border: #1e2d47;
+    --accent: #f59e0b;
+    --accent2: #3b82f6;
+    --accent3: #10b981;
+    --danger: #ef4444;
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --bot-bubble: #1a2236;
+    --user-bubble: #1d3a6e;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Header */
+  .header {
+    width: 100%;
+    background: linear-gradient(135deg, #0f1f3d 0%, #0a0f1a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo-icon {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--accent) 0%, #f97316 100%);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 0 20px rgba(245,158,11,0.3);
+  }
+  .header-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.25rem; letter-spacing: -0.02em; }
+  .header-sub { font-size: 0.72rem; color: var(--text2); font-family: 'DM Mono', monospace; letter-spacing: 0.08em; margin-top: 1px; }
+  .status-dot { width: 8px; height: 8px; background: var(--accent3); border-radius: 50%; box-shadow: 0 0 8px rgba(16,185,129,0.6); animation: pulse 2s infinite; margin-left: auto; }
+  .status-label { font-size: 0.72rem; color: var(--accent3); font-family: 'DM Mono', monospace; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  /* Tabs */
+  .tabs {
+    width: 100%; max-width: 900px;
+    display: flex; gap: 0;
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    margin-top: 8px;
+  }
+  .tab {
+    padding: 10px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { color: var(--text2); }
+
+  /* Main layout */
+  .main { width: 100%; max-width: 900px; flex: 1; display: flex; flex-direction: column; padding: 0 12px 12px; }
+
+  /* Chat panel */
+  .panel { display: none; flex-direction: column; flex: 1; }
+  .panel.active { display: flex; }
+
+  /* Chat messages */
+  .chat-window {
+    flex: 1; overflow-y: auto; padding: 20px 8px;
+    display: flex; flex-direction: column; gap: 14px;
+    min-height: 400px; max-height: 62vh;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .chat-window::-webkit-scrollbar { width: 4px; }
+  .chat-window::-webkit-scrollbar-track { background: transparent; }
+  .chat-window::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .message { display: flex; gap: 10px; align-items: flex-end; animation: fadeUp 0.3s ease; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .message.user { flex-direction: row-reverse; }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .bot-avatar { background: linear-gradient(135deg, var(--accent) 0%, #f97316 100%); }
+  .user-avatar { background: linear-gradient(135deg, var(--accent2) 0%, #6366f1 100%); font-size: 13px; color: white; font-weight: 700; font-family: 'Syne', sans-serif; }
+  .bubble {
+    max-width: 72%; padding: 12px 16px;
+    border-radius: 16px; font-size: 0.9rem; line-height: 1.55;
+  }
+  .bot-bubble { background: var(--bot-bubble); border: 1px solid var(--border); border-bottom-left-radius: 4px; color: var(--text); }
+  .user-bubble { background: var(--user-bubble); border: 1px solid #2a4a8a; border-bottom-right-radius: 4px; color: var(--text); }
+
+  /* Quick replies */
+  .quick-replies { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; padding: 0 8px; }
+  .qr-btn {
+    padding: 8px 14px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text2);
+    border-radius: 20px; font-size: 0.82rem; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .qr-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(245,158,11,0.07); transform: translateY(-1px); }
+
+  /* Input area */
+  .input-area {
+    display: flex; gap: 10px; align-items: flex-end;
+    padding: 14px 8px 6px;
+    border-top: 1px solid var(--border);
+  }
+  .input-wrap { flex: 1; position: relative; }
+  #chatInput {
+    width: 100%; padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px; color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none; resize: none; min-height: 48px; max-height: 100px;
+    transition: border-color 0.2s;
+    line-height: 1.4;
+  }
+  #chatInput:focus { border-color: var(--accent2); }
+  #chatInput::placeholder { color: var(--text3); }
+  .send-btn {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--accent) 0%, #f97316 100%);
+    border: none; border-radius: 12px;
+    color: #0a0f1a; font-size: 20px;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; flex-shrink: 0;
+  }
+  .send-btn:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(245,158,11,0.35); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* Typing indicator */
+  .typing { display: flex; align-items: center; gap: 5px; padding: 10px 14px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); animation: bounce 1.2s infinite; }
+  .dot:nth-child(2){animation-delay:.2s} .dot:nth-child(3){animation-delay:.4s}
+  @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+
+  /* Tickets panel */
+  .tickets-panel { padding: 16px 8px; }
+  .tickets-header { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .badge { background: var(--accent); color: #0a0f1a; border-radius: 20px; padding: 2px 10px; font-size: 0.72rem; font-weight: 700; font-family: 'DM Mono', monospace; }
+  .ticket-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 12px;
+    transition: border-color 0.2s;
+  }
+  .ticket-card:hover { border-color: var(--accent2); }
+  .ticket-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .ticket-id { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--accent); }
+  .ticket-status {
+    font-size: 0.72rem; font-family: 'DM Mono', monospace; font-weight: 500;
+    padding: 3px 10px; border-radius: 20px;
+  }
+  .status-open { background: rgba(59,130,246,0.15); color: var(--accent2); border: 1px solid rgba(59,130,246,0.3); }
+  .status-closed { background: rgba(16,185,129,0.15); color: var(--accent3); border: 1px solid rgba(16,185,129,0.3); }
+  .ticket-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+  .ticket-meta { font-size: 0.78rem; color: var(--text3); font-family: 'DM Mono', monospace; }
+  .ticket-details { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text2); }
+  .detail-row { display: flex; gap: 8px; margin-bottom: 4px; }
+  .detail-key { color: var(--text3); min-width: 120px; font-family: 'DM Mono', monospace; font-size: 0.75rem; }
+  .empty-tickets { text-align: center; padding: 40px; color: var(--text3); font-size: 0.9rem; }
+
+  /* Knowledge base panel */
+  .kb-panel { padding: 16px 8px; }
+  .kb-header { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
+  .kb-add-form { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 20px; }
+  .kb-form-title { font-size: 0.85rem; font-weight: 600; color: var(--text2); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; font-family: 'DM Mono', monospace; }
+  .form-row { margin-bottom: 12px; }
+  .form-label { font-size: 0.78rem; color: var(--text3); margin-bottom: 5px; display: block; font-family: 'DM Mono', monospace; }
+  .form-input, .form-textarea, .form-select {
+    width: 100%; padding: 10px 12px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+    outline: none; transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--accent2); }
+  .form-textarea { resize: vertical; min-height: 80px; }
+  .form-select option { background: var(--surface); }
+  .kb-add-btn {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, var(--accent3) 0%, #059669 100%);
+    border: none; border-radius: 8px; color: white;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.03em;
+  }
+  .kb-add-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(16,185,129,0.3); }
+  .kb-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; margin-bottom: 10px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .kb-cat-tag {
+    font-size: 0.7rem; font-family: 'DM Mono', monospace; padding: 3px 8px;
+    border-radius: 4px; white-space: nowrap; flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .cat-ups { background: rgba(245,158,11,0.15); color: var(--accent); border: 1px solid rgba(245,158,11,0.3); }
+  .cat-inverter { background: rgba(59,130,246,0.15); color: var(--accent2); border: 1px solid rgba(59,130,246,0.3); }
+  .cat-general { background: rgba(16,185,129,0.15); color: var(--accent3); border: 1px solid rgba(16,185,129,0.3); }
+  .kb-q { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+  .kb-a { font-size: 0.82rem; color: var(--text2); }
+  .kb-del { margin-left: auto; background: none; border: none; color: var(--text3); cursor: pointer; font-size: 16px; transition: color 0.2s; flex-shrink: 0; }
+  .kb-del:hover { color: var(--danger); }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface); border: 1px solid var(--accent3);
+    color: var(--accent3); padding: 12px 20px; border-radius: 10px;
+    font-size: 0.85rem; font-family: 'DM Mono', monospace;
+    box-shadow: var(--shadow); z-index: 999;
+    animation: toastIn 0.3s ease;
+    display: none;
+  }
+  @keyframes toastIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+  /* Scrollbar */
+  .chat-window::-webkit-scrollbar { width: 3px; }
+
+  .escalated-note {
+    background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2);
+    border-radius: 10px; padding: 10px 14px; font-size: 0.82rem;
+    color: var(--accent2); margin-top: 6px;
+    font-family: 'DM Mono', monospace; line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-icon">⚡</div>
+  <div>
+    <div class="header-title">CE+T Power Customer Support</div>
+    <div class="header-sub">UPS &amp; INVERTER SOLUTIONS</div>
+  </div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+    <div class="status-dot"></div>
+    <div class="status-label">ONLINE</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('chat')">💬 Chat Support</div>
+  <div class="tab" onclick="switchTab('tickets')">🎫 Tickets</div>
+  <div class="tab" onclick="switchTab('kb')">🧠 Knowledge Base</div>
+</div>
+
+<div class="main">
+  <!-- CHAT PANEL -->
+  <div class="panel active" id="panel-chat" style="margin-top:12px">
+    <div class="chat-window" id="chatWindow"></div>
+    <div id="quickReplies" class="quick-replies"></div>
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea id="chatInput" placeholder="Describe your UPS or inverter issue…" rows="1"
+          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      </div>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">↑</button>
+    </div>
+  </div>
+
+  <!-- TICKETS PANEL -->
+  <div class="panel" id="panel-tickets" style="overflow-y:auto;max-height:80vh">
+    <div class="tickets-panel">
+      <div class="tickets-header">
+        Support Tickets <span class="badge" id="ticketCount">0</span>
+      </div>
+      <div id="ticketsList"><div class="empty-tickets">⚡ No tickets yet.<br>Unresolved chat issues will appear here.</div></div>
+    </div>
+  </div>
+
+  <!-- KNOWLEDGE BASE PANEL -->
+  <div class="panel" id="panel-kb" style="overflow-y:auto;max-height:80vh">
+    <div class="kb-panel">
+      <div class="kb-header">🧠 Knowledge Base</div>
+      <div class="kb-add-form">
+        <div class="kb-form-title">+ Add New Solution</div>
+        <div class="form-row">
+          <label class="form-label">CATEGORY</label>
+          <select class="form-select" id="kbCat">
+            <option value="ups">UPS</option>
+            <option value="inverter">Inverter</option>
+            <option value="general">General</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">PROBLEM / KEYWORDS (comma separated)</label>
+          <input type="text" class="form-input" id="kbKeywords" placeholder="e.g. beeping, battery low, not charging">
+        </div>
+        <div class="form-row">
+          <label class="form-label">QUESTION DISPLAY</label>
+          <input type="text" class="form-input" id="kbQuestion" placeholder="e.g. UPS is beeping continuously">
+        </div>
+        <div class="form-row">
+          <label class="form-label">SOLUTION / ANSWER</label>
+          <textarea class="form-textarea" id="kbAnswer" placeholder="Provide the solution or troubleshooting steps…"></textarea>
+        </div>
+        <button class="kb-add-btn" onclick="addKBEntry()">✅ Add to Knowledge Base</button>
+      </div>
+      <div id="kbList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let tickets = JSON.parse(localStorage.getItem('pc_tickets') || '[]');
+let knowledgeBase = JSON.parse(localStorage.getItem('pc_kb') || 'null') || [
+  { id: 1, cat: 'ups', keywords: ['beeping','beep','continuous beep','alarm'], question: 'UPS is beeping continuously', answer: 'Continuous beeping usually means the battery is low or faulty. Steps: 1) Check if mains power is present — the UPS may be on battery. 2) If mains is fine, the battery may need replacement. 3) Ensure the load does not exceed UPS capacity. 4) Check battery age (typical life: 2–4 years).' },
+  { id: 2, cat: 'ups', keywords: ['not turning on','not starting','dead','no power','wont start'], question: 'UPS not turning on', answer: 'If the UPS will not start: 1) Check that the mains socket has power. 2) Press and hold the power button for 3–5 seconds. 3) Ensure the battery is connected internally. 4) If there was a recent overload, reset the circuit breaker on the back panel.' },
+  { id: 3, cat: 'ups', keywords: ['overload','overloaded','overload indicator'], question: 'UPS showing overload', answer: 'Overload means connected devices exceed UPS capacity. 1) Disconnect non-essential devices. 2) Check total wattage of connected equipment vs UPS VA rating. 3) If overload persists with minimal load, contact support — the UPS may have a fault.' },
+  { id: 4, cat: 'ups', keywords: ['battery not charging','not charging','charging issue'], question: 'UPS battery not charging', answer: 'If the battery is not charging: 1) Ensure the UPS is connected to mains power for at least 8 hours. 2) Verify the charging LED is on. 3) The battery may be deeply discharged or dead — replacement may be needed. 4) Check internal battery connections.' },
+  { id: 5, cat: 'ups', keywords: ['shutdown','auto shutdown','switches off'], question: 'UPS shuts down automatically', answer: 'Auto shutdown can be caused by: 1) Overload — reduce connected devices. 2) Low battery — charge fully. 3) Overheating — ensure ventilation around the UPS. 4) Faulty battery unable to sustain load.' },
+  { id: 6, cat: 'inverter', keywords: ['inverter not working','inverter dead','no output','no power inverter'], question: 'Inverter not producing output', answer: 'If the inverter has no output: 1) Check battery charge level. 2) Verify all DC connections are tight. 3) Check the DC fuse/circuit breaker. 4) Ensure the inverter is not in protection mode (overload/short circuit). 5) Press the reset button if present.' },
+  { id: 7, cat: 'inverter', keywords: ['inverter battery','battery drain','battery draining fast'], question: 'Inverter battery drains too fast', answer: 'Fast battery drain: 1) Check connected load — calculate total wattage. 2) Battery capacity may be degraded — test with a multimeter (should read 12.6V+ when full). 3) Ensure the battery is the correct Ah rating for your inverter. 4) Reduce load to extend backup time.' },
+  { id: 8, cat: 'inverter', keywords: ['error','fault','error code','fault light'], question: 'Inverter showing error / fault light', answer: 'Error lights indicate specific faults. 1) Note the LED pattern or code displayed. 2) Consult your model\'s manual for error code meanings. 3) Common faults: low battery (charge it), overload (reduce load), high temperature (improve airflow). 4) If unresolved, log a support ticket.' },
+  { id: 9, cat: 'general', keywords: ['warranty','guarantee','warranty claim'], question: 'How do I make a warranty claim?', answer: 'To make a warranty claim: 1) Locate your purchase receipt and product serial number. 2) Visit our service centre with the unit and documents. 3) Alternatively, call our support line and quote your serial number. 4) Warranty periods: UPS — 2 years, Inverter — 1 year (battery 6 months).' },
+  { id: 10, cat: 'general', keywords: ['service center','service centre','nearest centre','location'], question: 'Where is the nearest service centre?', answer: 'You can find your nearest PowerCare service centre at our website or call 1800-POWER-CARE. Provide your city/PIN code for the closest branch. Most cities have same-day or next-day service appointments available.' }
+];
+
+let chatState = 'IDLE'; // IDLE | COLLECTING | DONE
+let collectingData = {};
+let collectStep = 0;
+const collectQuestions = [
+  { key: 'name', q: '👤 Could I get your **full name** please?' },
+  { key: 'phone', q: '📞 What is your **contact number**?' },
+  { key: 'email', q: '📧 What is your **email address** (for ticket updates)?' },
+  { key: 'product_type', q: '🔌 Is this a **UPS** or an **Inverter**?' },
+  { key: 'model', q: '🏷️ What is the **model name / number** of the device?' },
+  { key: 'serial', q: '🔢 Do you have the **serial number**? (Type "skip" if not available)' },
+  { key: 'purchase_date', q: '📅 When did you **purchase** the device? (approx. date or year)' },
+  { key: 'description', q: '📝 Please **describe the problem** in as much detail as you can.' },
+  { key: 'tried', q: '🔧 What have you **already tried** to fix it? (Type "nothing" if nothing yet)' }
+];
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+window.onload = () => {
+  renderKB();
+  renderTickets();
+  setTimeout(() => {
+    addBotMessage("👋 Hello! Welcome to **PowerCare Support** — your UPS & Inverter helpdesk.");
+    setTimeout(() => {
+      addBotMessage("I can help you with common issues right away, or escalate to our team if needed. What are you experiencing today?");
+      setTimeout(() => showMainMenu(), 400);
+    }, 600);
+  }, 400);
+};
+
+function showMainMenu() {
+  showQuickReplies([
+    '⚡ UPS Problem', '🔋 Inverter Problem', '📋 Check My Ticket', '📞 Contact Support'
+  ]);
+}
+
+// ─── CHAT ─────────────────────────────────────────────────────────────────────
+function addBotMessage(text, extra = '') {
+  const win = document.getElementById('chatWindow');
+  const div = document.createElement('div');
+  div.className = 'message bot';
+  div.innerHTML = `
+    <div class="avatar bot-avatar">⚡</div>
+    <div>
+      <div class="bubble bot-bubble">${formatMsg(text)}</div>
+      ${extra}
+    </div>`;
+  win.appendChild(div);
+  scrollChat();
+}
+
+function addUserMessage(text) {
+  const win = document.getElementById('chatWindow');
+  const div = document.createElement('div');
+  div.className = 'message user';
+  div.innerHTML = `
+    <div class="avatar user-avatar">YOU</div>
+    <div class="bubble user-bubble">${escHtml(text)}</div>`;
+  win.appendChild(div);
+  scrollChat();
+}
+
+function formatMsg(text) {
+  return escHtml(text)
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+function escHtml(t) { const d=document.createElement('div');d.textContent=t;return d.innerHTML; }
+
+function showTyping(cb, delay = 900) {
+  const win = document.getElementById('chatWindow');
+  const div = document.createElement('div');
+  div.className = 'message bot'; div.id = 'typingIndicator';
+  div.innerHTML = `<div class="avatar bot-avatar">⚡</div><div class="bubble bot-bubble"><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+  win.appendChild(div);
+  scrollChat();
+  setTimeout(() => { div.remove(); cb(); }, delay);
+}
+
+function showQuickReplies(options) {
+  const qr = document.getElementById('quickReplies');
+  qr.innerHTML = '';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'qr-btn';
+    btn.textContent = opt;
+    btn.onclick = () => { qr.innerHTML = ''; processUserInput(opt); };
+    qr.appendChild(btn);
+  });
+}
+
+function scrollChat() { const w=document.getElementById('chatWindow'); w.scrollTop=w.scrollHeight; }
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+
+function sendMessage() {
+  const inp = document.getElementById('chatInput');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = ''; inp.style.height = 'auto';
+  document.getElementById('quickReplies').innerHTML = '';
+  addUserMessage(text);
+  showTyping(() => processUserInput(text));
+}
+
+// ─── LOGIC ───────────────────────────────────────────────────────────────────
+function processUserInput(input) {
+  const inp = input.trim();
+
+  if (chatState === 'COLLECTING') {
+    handleCollecting(inp);
+    return;
+  }
+
+  const lower = inp.toLowerCase();
+
+  // Navigation shortcuts
+  if (lower.includes('check') && lower.includes('ticket')) {
+    switchTab('tickets');
+    addBotMessage("I've opened the **Tickets** tab for you. You can see all your submitted tickets there.");
+    showMainMenu(); return;
+  }
+  if (lower.includes('contact support') || lower.includes('speak to agent') || lower.includes('human')) {
+    addBotMessage("To reach our support team directly:\n📞 **1800-POWER-CARE** (Mon–Sat, 9AM–6PM)\n📧 **support@powercare.com**\n🏢 Or visit your nearest service centre.");
+    showMainMenu(); return;
+  }
+
+  // Match KB
+  const match = findKBMatch(lower);
+  if (match) {
+    addBotMessage(`✅ I found a solution for: **${match.question}**\n\n${match.answer}`);
+    setTimeout(() => {
+      addBotMessage("Did this solve your problem?");
+      showQuickReplies(['✅ Yes, solved!', '❌ No, still having issues', '🔄 Different problem']);
+    }, 400);
+    return;
+  }
+
+  // UPS menu
+  if (lower.includes('ups')) {
+    addBotMessage("Sure! What's happening with your **UPS**? Select a common issue or describe it:");
+    showQuickReplies(['Beeping / Alarm', 'Not turning on', 'Battery not charging', 'Overload error', 'Shuts down automatically', '❓ Something else']);
+    return;
+  }
+
+  // Inverter menu
+  if (lower.includes('inverter')) {
+    addBotMessage("Sure! What's happening with your **Inverter**? Select a common issue or describe it:");
+    showQuickReplies(['No output / Not working', 'Battery drains fast', 'Error / Fault light', 'Battery not charging', '❓ Something else']);
+    return;
+  }
+
+  // Escalate
+  if (lower.includes('something else') || lower.includes('different') || lower.includes('no, still') || lower.includes('other')) {
+    startCollection();
+    return;
+  }
+
+  // Positive resolved
+  if (lower.includes('yes') && lower.includes('solved')) {
+    addBotMessage("🎉 Great! Glad I could help. Have a power-safe day!");
+    showMainMenu(); return;
+  }
+
+  // Fallback — try KB anyway, else escalate
+  const fallback = findKBMatch(lower);
+  if (fallback) {
+    addBotMessage(`Here's what I found for that:\n\n**${fallback.question}**\n\n${fallback.answer}`);
+    setTimeout(() => {
+      showQuickReplies(['✅ Solved!', '❌ Still not fixed', '🔄 Different problem']);
+    }, 300);
+  } else {
+    addBotMessage("I didn't find a pre-defined solution for that issue. Let me collect some details so our support team can assist you directly.");
+    setTimeout(() => startCollection(), 500);
+  }
+}
+
+function findKBMatch(text) {
+  let best = null, bestScore = 0;
+  for (const item of knowledgeBase) {
+    let score = 0;
+    for (const kw of item.keywords) {
+      if (text.includes(kw.toLowerCase())) score += kw.length;
+    }
+    if (score > bestScore) { bestScore = score; best = item; }
+  }
+  return bestScore > 0 ? best : null;
+}
+
+function startCollection() {
+  chatState = 'COLLECTING';
+  collectingData = {};
+  collectStep = 0;
+  addBotMessage("No problem! I'll collect some information so our team can create a support ticket for you. This will only take a moment. 📋");
+  setTimeout(() => askCollectQuestion(), 400);
+}
+
+function askCollectQuestion() {
+  if (collectStep < collectQuestions.length) {
+    const q = collectQuestions[collectStep];
+    addBotMessage(q.q);
+  }
+}
+
+function handleCollecting(input) {
+  const key = collectQuestions[collectStep].key;
+  collectingData[key] = input;
+  collectStep++;
+
+  // Product type → show QR
+  if (key === 'product_type') {
+    const lower = input.toLowerCase();
+    if (!lower.includes('ups') && !lower.includes('inverter')) {
+      addBotMessage("Please specify **UPS** or **Inverter**.");
+      collectStep--;
+      showQuickReplies(['UPS', 'Inverter']);
+      return;
+    }
+  }
+
+  if (collectStep < collectQuestions.length) {
+    setTimeout(() => askCollectQuestion(), 300);
+  } else {
+    submitTicket();
+  }
+}
+
+function submitTicket() {
+  chatState = 'DONE';
+  const ticketId = 'TKT-' + Date.now().toString().slice(-6);
+  const ticket = {
+    id: ticketId,
+    status: 'open',
+    createdAt: new Date().toLocaleString(),
+    ...collectingData
+  };
+  tickets.unshift(ticket);
+  localStorage.setItem('pc_tickets', JSON.stringify(tickets));
+  renderTickets();
+
+  addBotMessage(`✅ **Ticket Created Successfully!**\n\n🎫 Ticket ID: **${ticketId}**\nOur support team has been notified and will contact you within **24 hours** at the number/email you provided.`);
+  setTimeout(() => {
+    const details = `<div class="escalated-note">📋 TICKET SUMMARY<br>
+      Name: ${ticket.name || '—'}<br>
+      Phone: ${ticket.phone || '—'}<br>
+      Email: ${ticket.email || '—'}<br>
+      Product: ${ticket.product_type || '—'} | Model: ${ticket.model || '—'}<br>
+      Issue: ${ticket.description || '—'}
+    </div>`;
+    addBotMessage("Here's a summary of your submitted ticket:", details);
+    setTimeout(() => {
+      addBotMessage("Is there anything else I can help you with?");
+      chatState = 'IDLE';
+      showMainMenu();
+    }, 500);
+  }, 500);
+}
+
+// ─── TICKETS ─────────────────────────────────────────────────────────────────
+function renderTickets() {
+  const list = document.getElementById('ticketsList');
+  document.getElementById('ticketCount').textContent = tickets.length;
+  if (!tickets.length) {
+    list.innerHTML = '<div class="empty-tickets">⚡ No tickets yet.<br>Unresolved chat issues will appear here.</div>';
+    return;
+  }
+  list.innerHTML = tickets.map(t => `
+    <div class="ticket-card">
+      <div class="ticket-top">
+        <span class="ticket-id">${t.id}</span>
+        <span class="ticket-status ${t.status === 'open' ? 'status-open' : 'status-closed'}">${t.status.toUpperCase()}</span>
+      </div>
+      <div class="ticket-title">${escHtml(t.product_type || 'Unknown Device')} — ${escHtml(t.description?.slice(0,60) || 'No description')}${(t.description||'').length > 60 ? '…' : ''}</div>
+      <div class="ticket-meta">Created: ${t.createdAt}</div>
+      <div class="ticket-details">
+        <div class="detail-row"><span class="detail-key">CUSTOMER</span><span>${escHtml(t.name||'—')}</span></div>
+        <div class="detail-row"><span class="detail-key">CONTACT</span><span>${escHtml(t.phone||'—')} | ${escHtml(t.email||'—')}</span></div>
+        <div class="detail-row"><span class="detail-key">MODEL</span><span>${escHtml(t.model||'—')} (S/N: ${escHtml(t.serial||'—')})</span></div>
+        <div class="detail-row"><span class="detail-key">PURCHASE DATE</span><span>${escHtml(t.purchase_date||'—')}</span></div>
+        <div class="detail-row"><span class="detail-key">TRIED</span><span>${escHtml(t.tried||'—')}</span></div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        ${t.status === 'open' ? `<button onclick="closeTicket('${t.id}')" style="padding:6px 12px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--accent3);border-radius:6px;cursor:pointer;font-size:0.78rem;font-family:'DM Mono',monospace">✓ Mark Resolved</button>` : ''}
+        <button onclick="deleteTicket('${t.id}')" style="padding:6px 12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:var(--danger);border-radius:6px;cursor:pointer;font-size:0.78rem;font-family:'DM Mono',monospace">🗑 Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function closeTicket(id) {
+  const t = tickets.find(x => x.id === id);
+  if (t) { t.status = 'closed'; localStorage.setItem('pc_tickets', JSON.stringify(tickets)); renderTickets(); showToast('Ticket marked as resolved'); }
+}
+function deleteTicket(id) {
+  tickets = tickets.filter(x => x.id !== id);
+  localStorage.setItem('pc_tickets', JSON.stringify(tickets));
+  renderTickets(); showToast('Ticket deleted');
+}
+
+// ─── KNOWLEDGE BASE ────────────────────────────────────────────────────────────
+function renderKB() {
+  const list = document.getElementById('kbList');
+  list.innerHTML = knowledgeBase.map(item => `
+    <div class="kb-item">
+      <span class="kb-cat-tag cat-${item.cat}">${item.cat.toUpperCase()}</span>
+      <div style="flex:1">
+        <div class="kb-q">${escHtml(item.question)}</div>
+        <div class="kb-a">${escHtml(item.answer.slice(0,120))}${item.answer.length>120?'…':''}</div>
+        <div style="margin-top:4px;font-size:0.7rem;color:var(--text3);font-family:'DM Mono',monospace">Keywords: ${item.keywords.join(', ')}</div>
+      </div>
+      <button class="kb-del" onclick="deleteKB(${item.id})" title="Delete">✕</button>
+    </div>
+  `).join('');
+}
+
+function addKBEntry() {
+  const cat = document.getElementById('kbCat').value;
+  const kw = document.getElementById('kbKeywords').value.trim();
+  const q = document.getElementById('kbQuestion').value.trim();
+  const a = document.getElementById('kbAnswer').value.trim();
+  if (!kw || !q || !a) { showToast('Please fill all fields', true); return; }
+  const entry = {
+    id: Date.now(),
+    cat,
+    keywords: kw.split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
+    question: q,
+    answer: a
+  };
+  knowledgeBase.push(entry);
+  localStorage.setItem('pc_kb', JSON.stringify(knowledgeBase));
+  renderKB();
+  document.getElementById('kbKeywords').value = '';
+  document.getElementById('kbQuestion').value = '';
+  document.getElementById('kbAnswer').value = '';
+  showToast('✅ Solution added to knowledge base!');
+}
+
+function deleteKB(id) {
+  knowledgeBase = knowledgeBase.filter(x => x.id !== id);
+  localStorage.setItem('pc_kb', JSON.stringify(knowledgeBase));
+  renderKB();
+  showToast('Entry removed');
+}
+
+// ─── UI HELPERS ───────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['chat','tickets','kb'][i] === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+function showToast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = err ? 'var(--danger)' : 'var(--accent3)';
+  t.style.color = err ? 'var(--danger)' : 'var(--accent3)';
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 2800);
+}
+</script>
+</body>
+</html>
